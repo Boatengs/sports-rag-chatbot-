@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPORTZBOT — Sports Analytics AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── RESET ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── THEME TOKENS ── */
+:root[data-theme="light"] {
+    --bg-base:        #ffffff;
+    --bg-sidebar:     #f8f8f8;
+    --bg-elevated:    #f1f1f1;
+    --bg-hover:       #ebebeb;
+    --bg-input:       #f9f9f9;
+    --bg-msg-user:    #f0f7ff;
+    --bg-msg-bot:     #f6fff9;
+    --border:         rgba(0,0,0,0.08);
+    --border-focus:   rgba(0,0,0,0.22);
+    --text-primary:   #1a1a1a;
+    --text-secondary: rgba(0,0,0,0.5);
+    --text-tertiary:  rgba(0,0,0,0.3);
+    --accent:         #36c97d;
+    --accent-hover:   #2db56d;
+    --accent-dim:     rgba(54,201,125,0.12);
+    --accent-text:    #1a7a4a;
+    --blue:           #4f6ef7;
+    --blue-dim:       rgba(79,110,247,0.1);
+    --yellow:         #f5a623;
+    --red:            #e53e3e;
+    --shadow:         0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+    --shadow-input:   0 1px 4px rgba(0,0,0,0.06);
+    --toggle-icon:    '🌙';
+}
+
+:root[data-theme="dark"] {
+    --bg-base:        #1a1d21;
+    --bg-sidebar:     #19171d;
+    --bg-elevated:    #222529;
+    --bg-hover:       #27242c;
+    --bg-input:       #222529;
+    --bg-msg-user:    #1a2a3a;
+    --bg-msg-bot:     #0f2a1a;
+    --border:         rgba(255,255,255,0.08);
+    --border-focus:   rgba(255,255,255,0.22);
+    --text-primary:   #d1d2d3;
+    --text-secondary: rgba(255,255,255,0.45);
+    --text-tertiary:  rgba(255,255,255,0.25);
+    --accent:         #36c97d;
+    --accent-hover:   #2db56d;
+    --accent-dim:     rgba(54,201,125,0.12);
+    --accent-text:    #36c97d;
+    --blue:           #5865f2;
+    --blue-dim:       rgba(88,101,242,0.15);
+    --yellow:         #faa61a;
+    --red:            rgba(255,80,60,0.8);
+    --shadow:         0 1px 3px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.2);
+    --shadow-input:   0 1px 4px rgba(0,0,0,0.3);
+    --toggle-icon:    '☀️';
+}
+
+html, body {
+    height: 100vh;
+    overflow: hidden;
+    background: var(--bg-base);
+    color: var(--text-primary);
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    transition: background 0.25s, color 0.25s;
+}
+
+/* ── LAYOUT ── */
+#app {
+    display: grid;
+    grid-template-columns: 256px 1fr;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* ── SIDEBAR ── */
+#sidebar {
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    transition: background 0.25s, border-color 0.25s;
+}
+
+#ws-header {
+    padding: 16px 14px 14px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: background 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+#ws-header:hover { background: var(--bg-hover); }
+
+#ws-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 0.95em;
+    color: var(--text-primary);
+}
+
+.status-dot {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.dot-green  { background: var(--accent); }
+.dot-blue   { background: var(--blue); }
+.dot-yellow { background: var(--yellow); }
+
+#ws-meta {
+    font-size: 0.7em;
+    color: var(--text-tertiary);
+    margin-top: 3px;
+    padding-left: 17px;
+}
+
+/* Theme toggle */
+#theme-toggle {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    padding: 5px 8px;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    line-height: 1;
+}
+#theme-toggle:hover {
+    background: var(--bg-hover);
+    transform: scale(1.1);
+}
+
+/* Sidebar scroll */
+#sb-body {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 16px;
+}
+#sb-body::-webkit-scrollbar { width: 4px; }
+#sb-body::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 2px;
+}
+
+.sb-label {
+    font-size: 0.67em;
+    font-weight: 700;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    padding: 18px 14px 7px;
+    display: block;
+}
+
+.ch-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 5px 8px 5px 14px;
+    border-radius: 6px;
+    margin: 0 6px;
+    cursor: pointer;
+    transition: background 0.12s;
+}
+.ch-item:hover { background: var(--bg-hover); }
+.ch-item.active { background: var(--accent-dim); }
+.ch-item.active .ch-name b { color: var(--accent-text); }
+
+.ch-icon { font-size: 0.9em; line-height: 1.6; flex-shrink: 0; }
+.ch-name { font-size: 0.875em; color: var(--text-secondary); line-height: 1.4; }
+.ch-name b { font-weight: 600; color: var(--text-primary); }
+.ch-sub { font-size: 0.72em; color: var(--text-tertiary); display: block; margin-top: 1px; }
+
+.qa-btn {
+    display: block;
+    width: calc(100% - 12px);
+    margin: 0 6px 2px;
+    text-align: left;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: var(--text-secondary);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.82em;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: all 0.12s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.qa-btn::before { content: '# '; color: var(--text-tertiary); }
+.qa-btn:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+#sb-footer {
+    padding: 10px 14px 14px;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.sf-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.75em;
+    color: var(--text-tertiary);
+    padding: 3px 0;
+}
+
+/* ── MAIN PANEL ── */
+#main {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    background: var(--bg-base);
+    transition: background 0.25s;
+}
+
+#topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    height: 50px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    background: var(--bg-base);
+    transition: background 0.25s, border-color 0.25s;
+}
+
+#ch-title { display: flex; align-items: center; gap: 12px; }
+#ch-name { font-size: 0.92em; font-weight: 700; color: var(--text-primary); }
+#ch-divider { width: 1px; height: 18px; background: var(--border); }
+#ch-desc { font-size: 0.78em; color: var(--text-tertiary); }
+
+.top-badges { display: flex; gap: 6px; align-items: center; }
+.badge {
+    font-size: 0.68em;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    background: var(--bg-elevated);
+    letter-spacing: 0.3px;
+}
+.badge.live {
+    color: var(--accent-text);
+    border-color: rgba(54,201,125,0.3);
+    background: var(--accent-dim);
+}
+
+/* ── MESSAGES ── */
+#messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 24px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    background: var(--bg-base);
+    transition: background 0.25s;
+}
+#messages::-webkit-scrollbar { width: 5px; }
+#messages::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+}
+
+/* Welcome */
+#welcome {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 32px 0 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+}
+#welcome-icon { font-size: 2.5em; margin-bottom: 12px; }
+#welcome-title {
+    font-size: 1.25em;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+}
+#welcome-desc {
+    font-size: 0.85em;
+    color: var(--text-secondary);
+    max-width: 500px;
+    line-height: 1.7;
+}
+
+/* Message groups */
+.msg-group {
+    display: flex;
+    gap: 12px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    align-items: flex-start;
+    transition: background 0.12s;
+}
+.msg-group:hover { background: var(--bg-elevated); }
+
+.msg-avatar {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.05em;
+    flex-shrink: 0;
+    margin-top: 1px;
+    font-weight: 700;
+}
+.avatar-user {
+    background: var(--blue-dim);
+    color: var(--blue);
+    border: 1px solid rgba(79,110,247,0.2);
+}
+.avatar-bot {
+    background: var(--accent-dim);
+    color: var(--accent-text);
+    border: 1px solid rgba(54,201,125,0.2);
+}
+
+.msg-content { flex: 1; min-width: 0; }
+.msg-meta {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+.msg-name {
+    font-size: 0.88em;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+.msg-name.bot-name { color: var(--accent-text); }
+.msg-time {
+    font-size: 0.7em;
+    color: var(--text-tertiary);
+    font-family: 'IBM Plex Mono', monospace;
+}
+.msg-text {
+    font-size: 0.9em;
+    color: var(--text-primary);
+    line-height: 1.65;
+    word-wrap: break-word;
+}
+
+/* Typing */
+#typing {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 24px;
+}
+#typing.visible { display: flex; }
+.typing-dots {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    padding: 8px 14px;
+    background: var(--bg-elevated);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+}
+.dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--text-tertiary);
+    animation: bounce 1.2s infinite;
+}
+.dot:nth-child(2) { animation-delay: 0.2s; }
+.dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30%           { transform: translateY(-6px); opacity: 1; }
+}
+
+/* ── INPUT AREA ── */
+#input-area {
+    padding: 12px 24px 20px;
+    flex-shrink: 0;
+    background: var(--bg-base);
+    border-top: 1px solid var(--border);
+    transition: background 0.25s, border-color 0.25s;
+}
+
+#input-box {
+    display: flex;
+    align-items: flex-end;
+    background: var(--bg-input);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    overflow: hidden;
+    box-shadow: var(--shadow-input);
+}
+#input-box:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(54,201,125,0.1);
+}
+
+#input-actions-left {
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+}
+.input-icon {
+    color: var(--text-tertiary);
+    font-size: 1em;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: color 0.15s, background 0.15s;
+}
+.input-icon:hover {
+    color: var(--text-secondary);
+    background: var(--bg-hover);
+}
+
+#msg-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-primary);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.93em;
+    padding: 13px 0;
+    resize: none;
+    line-height: 1.5;
+    max-height: 120px;
+    min-height: 46px;
+}
+#msg-input::placeholder { color: var(--text-tertiary); }
+
+#input-actions-right {
+    display: flex;
+    align-items: center;
+    padding: 8px 10px 8px 8px;
+}
+
+#send-btn {
+    background: var(--accent);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.82em;
+    font-weight: 700;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.3px;
+    box-shadow: 0 2px 8px rgba(54,201,125,0.3);
+}
+#send-btn:hover {
+    background: var(--accent-hover);
+    box-shadow: 0 4px 14px rgba(54,201,125,0.4);
+}
+#send-btn:active { transform: scale(0.97); }
+#send-btn:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+
+#input-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 2px 0;
+}
+#input-hint {
+    font-size: 0.7em;
+    color: var(--text-tertiary);
+    font-family: 'IBM Plex Mono', monospace;
+}
+
+#clear-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-secondary);
+    font-size: 0.75em;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 4px 10px;
+    transition: all 0.15s;
+    font-family: 'IBM Plex Sans', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+#clear-btn:hover {
+    color: var(--red);
+    border-color: var(--red);
+    background: rgba(229,62,62,0.05);
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+    <!-- ── SIDEBAR ── -->
+    <div id="sidebar">
+        <div id="ws-header">
+            <div>
+                <div id="ws-name">
+                    <span class="status-dot dot-green"></span>
+                    SPORTZBOT
+                </div>
+                <div id="ws-meta">Sports Analytics Workspace</div>
+            </div>
+            <button id="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode">🌙</button>
+        </div>
+
+        <div id="sb-body">
+            <div class="sb-label">Channels</div>
+
+            <div class="ch-item active" onclick="setChannel(this, 'sports-analytics', 'All sports · Global coverage')">
+                <span class="ch-icon">📊</span>
+                <div>
+                    <span class="ch-name"><b>sports-analytics</b></span>
+                    <span class="ch-sub">All sports · Global coverage</span>
+                </div>
+            </div>
+            <div class="ch-item" onclick="setChannel(this, 'football', 'World Cup · UCL · Premier League')">
+                <span class="ch-icon">⚽</span>
+                <div>
+                    <span class="ch-name"><b>football</b></span>
+                    <span class="ch-sub">World Cup · UCL · Premier League</span>
+                </div>
+            </div>
+            <div class="ch-item" onclick="setChannel(this, 'basketball', 'NBA · Olympics · FIBA')">
+                <span class="ch-icon">🏀</span>
+                <div>
+                    <span class="ch-name"><b>basketball</b></span>
+                    <span class="ch-sub">NBA · Olympics · FIBA</span>
+                </div>
+            </div>
+            <div class="ch-item" onclick="setChannel(this, 'nfl', 'Super Bowl · Playoffs · Stats')">
+                <span class="ch-icon">🏈</span>
+                <div>
+                    <span class="ch-name"><b>nfl</b></span>
+                    <span class="ch-sub">Super Bowl · Playoffs · Stats</span>
+                </div>
+            </div>
+            <div class="ch-item" onclick="setChannel(this, 'cricket', 'T20 WC · IPL · Test Cricket')">
+                <span class="ch-icon">🏏</span>
+                <div>
+                    <span class="ch-name"><b>cricket</b></span>
+                    <span class="ch-sub">T20 WC · IPL · Test Cricket</span>
+                </div>
+            </div>
+            <div class="ch-item" onclick="setChannel(this, 'tennis', 'Grand Slams · ATP · WTA')">
+                <span class="ch-icon">🎾</span>
+                <div>
+                    <span class="ch-name"><b>tennis</b></span>
+                    <span class="ch-sub">Grand Slams · ATP · WTA</span>
+                </div>
+            </div>
+            <div class="ch-item" onclick="setChannel(this, 'formula-1', 'Verstappen · Hamilton · Ferrari')">
+                <span class="ch-icon">🏎️</span>
+                <div>
+                    <span class="ch-name"><b>formula-1</b></span>
+                    <span class="ch-sub">Verstappen · Hamilton · Ferrari</span>
+                </div>
+            </div>
+            <div class="ch-item" onclick="setChannel(this, 'analytics', 'Stats · Records · Rankings')">
+                <span class="ch-icon">📈</span>
+                <div>
+                    <span class="ch-name"><b>analytics</b></span>
+                    <span class="ch-sub">Stats · Records · Rankings</span>
+                </div>
+            </div>
+
+            <div class="sb-label" style="margin-top:8px;">Quick Questions</div>
+
+            <button class="qa-btn" onclick="quickAsk('Who won the 2024 Ballon d\'Or?')">Who won the 2024 Ballon d'Or?</button>
+            <button class="qa-btn" onclick="quickAsk('Compare Messi vs Ronaldo UCL goals')">Compare Messi vs Ronaldo UCL goals</button>
+            <button class="qa-btn" onclick="quickAsk('Boston Celtics 2024 championship')">Boston Celtics 2024 championship</button>
+            <button class="qa-btn" onclick="quickAsk('Who won the 2024 Super Bowl?')">Who won the 2024 Super Bowl?</button>
+            <button class="qa-btn" onclick="quickAsk('Best tennis player right now?')">Best tennis player right now?</button>
+            <button class="qa-btn" onclick="quickAsk('ICC T20 World Cup 2024 winner?')">ICC T20 World Cup 2024 winner?</button>
+            <button class="qa-btn" onclick="quickAsk('Mbappe to Real Madrid details')">Mbappe to Real Madrid details</button>
+            <button class="qa-btn" onclick="quickAsk('Most Champions League titles?')">Most Champions League titles?</button>
+            <button class="qa-btn" onclick="quickAsk('2022 World Cup final result')">2022 World Cup final result</button>
+            <button class="qa-btn" onclick="quickAsk('Paris Olympics basketball final 2024')">Paris Olympics basketball final 2024</button>
+        </div>
+
+        <div id="sb-footer">
+            <div class="sf-item">
+                <span class="status-dot dot-green" style="width:7px;height:7px;"></span>
+                Llama 3.2 · Online
+            </div>
+            <div class="sf-item">
+                <span class="status-dot dot-blue" style="width:7px;height:7px;"></span>
+                RAG Pipeline · Active
+            </div>
+            <div class="sf-item">
+                <span class="status-dot dot-yellow" style="width:7px;height:7px;"></span>
+                57 Chunks · Indexed
+            </div>
+        </div>
+    </div>
+
+    <!-- ── MAIN PANEL ── -->
+    <div id="main">
+        <div id="topbar">
+            <div id="ch-title">
+                <div id="ch-name"># sports-analytics</div>
+                <div id="ch-divider"></div>
+                <div id="ch-desc">Ask anything about football, basketball, NFL, cricket, tennis, F1 and more</div>
+            </div>
+            <div class="top-badges">
+                <span class="badge live">● Online</span>
+                <span class="badge">10 Sports</span>
+                <span class="badge">2024-25 Data</span>
+                <span class="badge">RAG + Llama 3.2</span>
+            </div>
+        </div>
+
+        <div id="messages">
+            <div id="welcome">
+                <div id="welcome-icon">🏆</div>
+                <div id="welcome-title">Welcome to #sports-analytics</div>
+                <div id="welcome-desc">
+                    This is the beginning of your sports analytics session.
+                    Ask me anything about football, basketball, NFL, cricket,
+                    tennis, F1 and more — powered by RAG + Llama 3.2.
+                    <br><br>
+                    Use the <strong>Quick Questions</strong> in the sidebar to get started instantly.
+                </div>
+            </div>
+        </div>
+
+        <div id="typing">
+            <div class="msg-avatar avatar-bot">⚡</div>
+            <div class="typing-dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        </div>
+
+        <div id="input-area">
+            <div id="input-box">
+                <div id="input-actions-left">
+                    <span class="input-icon">➕</span>
+                </div>
+                <textarea
+                    id="msg-input"
+                    placeholder="Message #sports-analytics..."
+                    rows="1"
+                    onkeydown="handleKey(event)"
+                    oninput="autoResize(this)"
+                ></textarea>
+                <div id="input-actions-right">
+                    <button id="send-btn" onclick="sendMessage()">
+                        Send ⚡
+                    </button>
+                </div>
+            </div>
+            <div id="input-footer">
+                <span id="input-hint">Return to send · Shift+Return for new line</span>
+                <button id="clear-btn" onclick="clearChat()">
+                    🗑️ Clear conversation
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// ── Theme ──────────────────────────────────────────────────────
+function toggleTheme() {
+    const html  = document.documentElement;
+    const btn   = document.getElementById('theme-toggle');
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    btn.textContent = isDark ? '🌙' : '☀️';
+    localStorage.setItem('sportzbot-theme', isDark ? 'light' : 'dark');
+}
+
+// Load saved theme
+(function() {
+    const saved = localStorage.getItem('sportzbot-theme') || 'light';
+    document.documentElement.setAttribute('data-theme', saved);
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('theme-toggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+    });
+})();
+
+// ── State ──────────────────────────────────────────────────────
+let isLoading = false;
+
+// ── Utils ──────────────────────────────────────────────────────
+function now() {
+    return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function scrollToBottom() {
+    const msgs = document.getElementById('messages');
+    msgs.scrollTo({ top: msgs.scrollHeight, behavior: 'smooth' });
+}
+
+function handleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+    }
+}
+
+// ── Channel switching ──────────────────────────────────────────
+function setChannel(el, name, desc) {
+    document.querySelectorAll('.ch-item').forEach(i => i.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('ch-name').textContent = '# ' + name;
+    document.getElementById('ch-desc').textContent = desc;
+    document.getElementById('msg-input').placeholder = 'Message #' + name + '...';
+}
+
+// ── Render message ─────────────────────────────────────────────
+function appendMessage(role, text) {
+    const msgs    = document.getElementById('messages');
+    const welcome = document.getElementById('welcome');
+    if (welcome) welcome.style.display = 'none';
+
+    const group   = document.createElement('div');
+    group.className = 'msg-group';
+
+    const isUser = role === 'user';
+    group.innerHTML = `
+        <div class="msg-avatar ${isUser ? 'avatar-user' : 'avatar-bot'}">
+            ${isUser ? '👤' : '⚡'}
+        </div>
+        <div class="msg-content">
+            <div class="msg-meta">
+                <span class="msg-name ${isUser ? '' : 'bot-name'}">
+                    ${isUser ? 'You' : 'SPORTZBOT'}
+                </span>
+                <span class="msg-time">${now()}</span>
+            </div>
+            <div class="msg-text">${text.replace(/\n/g, '<br>')}</div>
+        </div>
+    `;
+
+    msgs.appendChild(group);
+    scrollToBottom();
+}
+
+// ── Send message ───────────────────────────────────────────────
+async function sendMessage() {
+    const input   = document.getElementById('msg-input');
+    const sendBtn = document.getElementById('send-btn');
+    const message = input.value.trim();
+
+    if (!message || isLoading) return;
+
+    isLoading        = true;
+    sendBtn.disabled = true;
+    input.value      = '';
+    input.style.height = 'auto';
+
+    appendMessage('user', message);
+
+    const typing = document.getElementById('typing');
+    typing.classList.add('visible');
+    scrollToBottom();
+
+    try {
+        const res  = await fetch('/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message })
+        });
+        const data = await res.json();
+        typing.classList.remove('visible');
+        appendMessage('bot', data.response);
+    } catch (err) {
+        typing.classList.remove('visible');
+        appendMessage('bot', '⚠️ Connection error. Make sure the API server is running.');
+    }
+
+    isLoading        = false;
+    sendBtn.disabled = false;
+    input.focus();
+}
+
+// ── Quick ask ──────────────────────────────────────────────────
+function quickAsk(q) {
+    const input = document.getElementById('msg-input');
+    input.value = q;
+    autoResize(input);
+    sendMessage();
+}
+
+// ── Clear chat ─────────────────────────────────────────────────
+function clearChat() {
+    document.getElementById('messages').innerHTML = `
+        <div id="welcome">
+            <div id="welcome-icon">🏆</div>
+            <div id="welcome-title">Welcome to #sports-analytics</div>
+            <div id="welcome-desc">
+                This is the beginning of your sports analytics session.
+                Ask me anything about football, basketball, NFL, cricket,
+                tennis, F1 and more — powered by RAG + Llama 3.2.
+                <br><br>
+                Use the <strong>Quick Questions</strong> in the sidebar to get started instantly.
+            </div>
+        </div>
+    `;
+}
+
+// ── Init ───────────────────────────────────────────────────────
+document.getElementById('msg-input').focus();
+</script>
+</body>
+</html>
