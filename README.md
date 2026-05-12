@@ -35,13 +35,13 @@ A full-stack RAG-powered sports analytics chatbot with a Slack-style dashboard i
 
 | Domain | Coverage |
 |--------|----------|
-| ⚽ Football | World Cup history, UCL, Premier League, Messi vs Ronaldo |
-| 🏀 Basketball | NBA 2024, Paris Olympics, FIBA |
-| 🏈 NFL | Super Bowl history, Patrick Mahomes era |
-| 🏏 Cricket | T20 World Cup 2024, IPL, Test cricket |
-| 🎾 Tennis | Grand Slams, ATP/WTA rankings 2024 |
-| 🏎️ Formula 1 | Verstappen, Hamilton, Ferrari 2024 |
-| 🌍 Latest News | Ballon d'Or 2024, Mbappe to Real Madrid, Euro 2024 |
+|  Football | World Cup history, UCL, Premier League, Messi vs Ronaldo |
+|  Basketball | NBA 2024, Paris Olympics, FIBA |
+|  NFL | Super Bowl history, Patrick Mahomes era |
+|  Cricket | T20 World Cup 2024, IPL, Test cricket |
+|  Tennis | Grand Slams, ATP/WTA rankings 2024 |
+|  Formula 1 | Verstappen, Hamilton, Ferrari 2024 |
+|  Latest News | Ballon d'Or 2024, Mbappe to Real Madrid, Euro 2024 |
 
 **10 documents · 57 knowledge chunks · All indexed in ChromaDB**
 
