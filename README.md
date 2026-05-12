@@ -1,4 +1,4 @@
-# ⚡ SPORTZBOT — AI Sports Analytics Chatbot
+#  SPORTZBOT — AI Sports Analytics Chatbot
 
 A full-stack RAG-powered sports analytics chatbot with a Slack-style dashboard interface. Ask anything about football, basketball, NFL, cricket, tennis, Formula 1 and more — powered by Llama 3.2 running fully locally.
 
@@ -9,14 +9,14 @@ A full-stack RAG-powered sports analytics chatbot with a Slack-style dashboard i
 
 ---
 
-## 🎯 Live Demo
+##  Live Demo
 
 > Run locally — see setup instructions below.
 > Zero API costs · Fully local · No internet required after setup
 
 ---
 
-## 🖥️ Interface
+##  Interface
 
 - **Slack-style dashboard** with sidebar navigation
 - **Dark / Light mode** toggle with preference saved
@@ -27,11 +27,11 @@ A full-stack RAG-powered sports analytics chatbot with a Slack-style dashboard i
 
 ---
 
-## 🏗️ Architecture
+##  Architecture
 
 ---
 
-## 📚 Knowledge Base
+##  Knowledge Base
 
 | Domain | Coverage |
 |--------|----------|
@@ -47,7 +47,7 @@ A full-stack RAG-powered sports analytics chatbot with a Slack-style dashboard i
 
 ---
 
-## ⚡ Quick Start
+##  Quick Start
 
 **Prerequisites:** Python 3.11+, [Ollama](https://ollama.com)
 
@@ -86,7 +86,7 @@ splitter  = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
 chunks    = splitter.split_documents(documents)
 embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2", model_kwargs={"device": "cpu"})
 vectorstore = Chroma.from_documents(documents=chunks, embedding=embeddings, persist_directory=db_path)
-print(f"✅ Vector store ready with {vectorstore._collection.count()} chunks!")
+print(f" Vector store ready with {vectorstore._collection.count()} chunks!")
 PYEOF
 
 # 6. Start the server
@@ -94,11 +94,11 @@ cd src
 uvicorn app:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-Open **http://localhost:8000** 🚀
+Open **http://localhost:8000** 
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
@@ -112,7 +112,7 @@ Open **http://localhost:8000** 🚀
 
 ---
 
-## 🔍 Key Technical Decisions
+##  Key Technical Decisions
 
 **Why RAG over pure LLM prompting?**
 Llama 3.2's training cutoff means it lacks 2024-25 sports data. RAG grounds every answer in our curated knowledge base, eliminating hallucination on recent events like the 2024 Ballon d'Or winner or Mbappe's transfer.
@@ -128,7 +128,7 @@ Zero API costs, no rate limits, full privacy, and no internet dependency after i
 
 ---
 
-## ⚠️ Known Limitations
+##  Known Limitations
 
 - Knowledge base is static — requires manual updates for new sports events
 - Response time depends on local hardware (M3 Mac: ~5-10 seconds per answer)
@@ -137,7 +137,7 @@ Zero API costs, no rate limits, full privacy, and no internet dependency after i
 
 ---
 
-## 🧠 Key Learnings
+##  Key Learnings
 
 - RAG dramatically improves LLM accuracy on domain-specific recent knowledge
 - MMR retrieval outperforms simple similarity search for diverse questions
@@ -146,10 +146,10 @@ Zero API costs, no rate limits, full privacy, and no internet dependency after i
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 ---
 
-## 🔗 Links
+##  Links
 
 - [Project 1 — Sentiment Analyzer](https://github.com/Boatengs/sentiment-analyzer)
 - [My Portfolio](#)
