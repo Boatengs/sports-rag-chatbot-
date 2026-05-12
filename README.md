@@ -16,7 +16,7 @@ A full-stack RAG-powered sports analytics chatbot with a Slack-style dashboard i
 
 ---
 
-##  Interface
+## Interface
 
 - **Slack-style dashboard** with sidebar navigation
 - **Dark / Light mode** toggle with preference saved
