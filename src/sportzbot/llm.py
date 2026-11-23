@@ -1,4 +1,4 @@
-"""Client for a llama.cpp server (llama-server), through its OpenAI style chat endpoint.
+"""Client for a llama.cpp server (llama-server) or Ollama, through the OpenAI style chat endpoint.
 
 The benchmark runs every model through llama.cpp so all systems share one runtime. Prompts go in as
 a single user message, which is how version 1 sent them through Ollama's generate endpoint.
@@ -12,9 +12,10 @@ import requests
 
 
 class LlamaServer:
-    def __init__(self, url: str = "http://127.0.0.1:8080", timeout: float = 600):
+    def __init__(self, url: str = "http://127.0.0.1:8080", timeout: float = 600, model: str = "local"):
         self.url = url.rstrip("/")
         self.timeout = timeout
+        self.model = model  # ignored by llama-server; Ollama's OpenAI endpoint needs it (e.g. llama3.2)
 
     def wait(self, seconds: float = 600) -> None:
         end = time.time() + seconds
@@ -29,6 +30,7 @@ class LlamaServer:
 
     def chat(self, prompt: str, *, temperature: float = 0.0, max_tokens: int = 256, seed: int = 42) -> dict:
         body = {
+            "model": self.model,
             "messages": [{"role": "user", "content": prompt}],
             "temperature": temperature,
             "max_tokens": max_tokens,
