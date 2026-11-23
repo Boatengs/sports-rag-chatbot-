@@ -27,7 +27,7 @@ where = ["src"]
 
 [tool.ruff]
 line-length = 160
-extend-exclude = ["notebooks", "src/app.py", "src/api.py"]
+extend-exclude = ["notebooks"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B"]
