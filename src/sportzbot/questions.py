@@ -13,6 +13,8 @@ import ast
 import io
 import json
 import random
+import time
+import urllib.error
 import urllib.parse
 import urllib.request
 from collections import Counter, defaultdict
@@ -25,22 +27,44 @@ USER_AGENT = "sportzbot-benchmark/2.0 (https://github.com/Boatengs/sports-rag-ch
 
 RECENT_QUERY = """
 SELECT ?event ?eventLabel ?winner ?winnerLabel ?sportLabel ?date WHERE {
-  ?event p:P1346 ?st .
-  ?st ps:P1346 ?winner ; wikibase:rank ?rank .
-  FILTER(?rank != wikibase:DeprecatedRank)
-  FILTER NOT EXISTS { ?st ?pq ?qv . ?qprop wikibase:qualifier ?pq . }
-  ?event wdt:P641 ?sport .
-  { ?event wdt:P585 ?date } UNION { ?event wdt:P582 ?date }
-  FILTER(YEAR(?date) >= 2024 && YEAR(?date) <= 2025)
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+  VALUES ?dateProp { wdt:P585 wdt:P582 }
+  ?event ?dateProp ?date .
+  FILTER(?date >= "2024-01-01T00:00:00Z"^^xsd:dateTime && ?date < "2026-01-01T00:00:00Z"^^xsd:dateTime)
+  ?event wdt:P1346 ?winner ; wdt:P641 ?sport .
+  ?event rdfs:label ?eventLabel . FILTER(LANG(?eventLabel) = "en")
+  ?winner rdfs:label ?winnerLabel . FILTER(LANG(?winnerLabel) = "en")
+  OPTIONAL { ?sport rdfs:label ?sportLabel . FILTER(LANG(?sportLabel) = "en") }
 }
 """
+WIKIDATA_API = "https://www.wikidata.org/w/api.php"
 
 
 def _get(url: str, accept: str | None = None) -> bytes:
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, **({"Accept": accept} if accept else {})})
-    with urllib.request.urlopen(req, timeout=300) as r:
-        return r.read()
+    for attempt in range(5):
+        try:
+            with urllib.request.urlopen(req, timeout=300) as r:
+                return r.read()
+        except urllib.error.HTTPError as e:
+            if e.code not in (429, 500, 502, 503, 504) or attempt == 4:
+                raise
+            time.sleep(30 * (attempt + 1))
+    raise RuntimeError("unreachable")
+
+
+def winner_statements(qids: list[str]) -> dict[str, list[dict]]:
+    """P1346 statements of each item, with rank and qualifiers, from the Wikidata API."""
+    out: dict[str, list[dict]] = {}
+    for i in range(0, len(qids), 50):
+        url = WIKIDATA_API + "?" + urllib.parse.urlencode({"action": "wbgetentities", "ids": "|".join(qids[i : i + 50]), "props": "claims", "format": "json"})
+        ents = json.loads(_get(url))["entities"]
+        for q, e in ents.items():
+            out[q] = [
+                {"winner": c["mainsnak"].get("datavalue", {}).get("value", {}).get("id"), "rank": c["rank"], "qualifiers": list(c.get("qualifiers", {}))}
+                for c in e.get("claims", {}).get("P1346", [])
+            ]
+        time.sleep(0.5)
+    return out
 
 
 def simpleqa_sports() -> list[dict]:
@@ -89,10 +113,16 @@ def wikidata_recent(n: int, per_sport: int, seed: int, today: date) -> tuple[lis
                 "date": d,
             }
     stats = Counter()
+    stats["events_from_query"] = len(by_event)
+    claims = winner_statements(sorted(by_event))
     kept = []
     for ev, r in by_event.items():
-        if len(winners[ev]) != 1:
+        st = [c for c in claims.get(ev, []) if c["rank"] != "deprecated"]
+        if len(winners[ev]) != 1 or len(st) != 1:
             stats["more_than_one_winner"] += 1
+            continue
+        if st[0]["qualifiers"]:
+            stats["winner_has_qualifiers"] += 1
             continue
         if not (_is_label(r["event_label"]) and _is_label(r["winner_label"])):
             stats["no_english_label"] += 1
