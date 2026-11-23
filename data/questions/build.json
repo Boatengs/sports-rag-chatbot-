@@ -4,14 +4,19 @@
  "wikidata_recent": {
   "events_from_query": 10922,
   "more_than_one_winner": 2986,
+  "no_year_in_name": 570,
   "winner_has_qualifiers": 647,
   "year_in_name_disagrees_with_date": 123,
-  "answer_in_question": 3225,
-  "candidates": 3941,
+  "answer_in_question": 3109,
+  "candidates": 3487,
   "chosen": 300,
-  "sports": 60
+  "sports": 56
  },
  "wikidata_sports": [
+  [
+   "tennis",
+   25
+  ],
   [
    "basketball",
    25
@@ -25,87 +30,87 @@
    25
   ],
   [
-   "tennis",
-   25
-  ],
-  [
-   "volleyball",
-   17
-  ],
-  [
    "snooker",
-   15
+   20
+  ],
+  [
+   "water polo",
+   19
   ],
   [
    "ice hockey",
-   15
-  ],
-  [
-   "Gaelic football",
-   13
-  ],
-  [
-   "hurling",
-   11
-  ],
-  [
-   "athletics",
-   11
+   18
   ],
   [
    "baseball",
-   11
+   16
   ],
   [
-   "rugby sevens",
-   9
+   "volleyball",
+   12
+  ],
+  [
+   "handball",
+   10
   ],
   [
    "field hockey",
    9
   ],
   [
-   "water polo",
+   "hurling",
    8
   ],
   [
-   "handball",
-   6
+   "Gaelic football",
+   8
   ],
   [
-   "chess",
-   6
+   "American football",
+   5
   ],
   [
-   "rugby league",
-   3
+   "diving (sport)",
+   4
+  ],
+  [
+   "athletics",
+   4
   ],
   [
    "competitive swimming",
    3
   ],
   [
-   "curling",
+   "wrestling",
    3
   ],
   [
-   "American football",
+   "chess",
    3
   ],
   [
-   "rallying",
+   "cue sports",
    3
   ],
   [
-   "wheelchair tennis",
-   3
-  ],
-  [
-   "karate",
+   "softball",
    3
   ],
   [
    "rugby union",
+   3
+  ],
+  [
+   "weightlifting",
+   2
+  ],
+  [
+   "curling",
+   2
+  ],
+  [
+   "road bicycle racing",
    2
   ],
   [
@@ -113,11 +118,11 @@
    2
   ],
   [
-   "Para swimming",
+   "rugby league",
    2
   ],
   [
-   "stock car racing",
+   "wheelchair tennis",
    2
   ],
   [
@@ -125,7 +130,23 @@
    2
   ],
   [
-   "weightlifting",
+   "karate",
+   2
+  ],
+  [
+   "Australian rules football",
+   2
+  ],
+  [
+   "wheelchair basketball",
+   2
+  ],
+  [
+   "lacrosse",
+   2
+  ],
+  [
+   "taekwondo",
    2
   ],
   [
@@ -137,23 +158,11 @@
    2
   ],
   [
-   "taekwondo",
-   2
-  ],
-  [
-   "softball",
-   2
-  ],
-  [
-   "golf",
-   2
-  ],
-  [
    "motorcycle sport",
-   1
+   2
   ],
   [
-   "floorball",
+   "rallying",
    1
   ],
   [
@@ -161,31 +170,19 @@
    1
   ],
   [
-   "judo",
+   "cross-country skiing",
    1
   ],
   [
-   "professional wrestling",
+   "freestyle skiing",
    1
   ],
   [
-   "bandy",
+   "camogie",
    1
   ],
   [
-   "lacrosse",
-   1
-  ],
-  [
-   "flag football",
-   1
-  ],
-  [
-   "rugby",
-   1
-  ],
-  [
-   "cue sports",
+   "canoeing",
    1
   ],
   [
@@ -193,51 +190,7 @@
    1
   ],
   [
-   "cycle sport",
-   1
-  ],
-  [
-   "wrestling",
-   1
-  ],
-  [
-   "track cycling",
-   1
-  ],
-  [
-   "road bicycle racing",
-   1
-  ],
-  [
-   "quiz bowl",
-   1
-  ],
-  [
-   "nine-ball",
-   1
-  ],
-  [
-   "League of Legends",
-   1
-  ],
-  [
-   "formula racing",
-   1
-  ],
-  [
-   "beach soccer",
-   1
-  ],
-  [
-   "futsal",
-   1
-  ],
-  [
-   "motorcycle road racing",
-   1
-  ],
-  [
-   "horse racing",
+   "indoor athletics",
    1
   ],
   [
@@ -245,11 +198,43 @@
    1
   ],
   [
-   "high diving",
+   "bandy",
    1
   ],
   [
-   "eight-ball",
+   "floorball",
+   1
+  ],
+  [
+   "skiing",
+   1
+  ],
+  [
+   "artistic gymnastics",
+   1
+  ],
+  [
+   "horse racing",
+   1
+  ],
+  [
+   "golf",
+   1
+  ],
+  [
+   "nine-ball",
+   1
+  ],
+  [
+   "motorcycle road racing",
+   1
+  ],
+  [
+   "netball",
+   1
+  ],
+  [
+   "darts",
    1
   ]
  ]
