@@ -520,6 +520,8 @@ html, body {
     border-color: var(--red);
     background: rgba(229,62,62,0.05);
 }
+.msg-sources { margin: 6px 0 0; padding-left: 18px; font-size: 12px; opacity: 0.85; }
+.msg-sources a { color: inherit; text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -619,11 +621,11 @@ html, body {
             </div>
             <div class="sf-item">
                 <span class="status-dot dot-blue" style="width:7px;height:7px;"></span>
-                RAG Pipeline · Active
+                Live Wikipedia search
             </div>
             <div class="sf-item">
                 <span class="status-dot dot-yellow" style="width:7px;height:7px;"></span>
-                57 Chunks · Indexed
+                Answers cite their sources
             </div>
         </div>
     </div>
@@ -638,9 +640,9 @@ html, body {
             </div>
             <div class="top-badges">
                 <span class="badge live">● Online</span>
-                <span class="badge">10 Sports</span>
-                <span class="badge">2024-25 Data</span>
-                <span class="badge">RAG + Llama 3.2</span>
+                <span class="badge">Any sport</span>
+                <span class="badge">Live Wikipedia</span>
+                <span class="badge">Llama 3.2 3B</span>
             </div>
         </div>
 
@@ -651,7 +653,7 @@ html, body {
                 <div id="welcome-desc">
                     This is the beginning of your sports analytics session.
                     Ask me anything about football, basketball, NFL, cricket,
-                    tennis, F1 and more — powered by RAG + Llama 3.2.
+                    tennis, F1 and more. Answers come from Wikipedia, with sources, or I say I don&#39;t know.
                     <br><br>
                     Use the <strong>Quick Questions</strong> in the sidebar to get started instantly.
                 </div>
@@ -751,7 +753,21 @@ function setChannel(el, name, desc) {
 }
 
 // ── Render message ─────────────────────────────────────────────
-function appendMessage(role, text) {
+function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function sourcesHtml(sources) {
+    if (!sources || !sources.length) return '';
+    const items = sources.map(s => {
+        const where = s.section ? `${escapeHtml(s.title)} › ${escapeHtml(s.section)}` : escapeHtml(s.title);
+        const href = /^https:\/\/en\.wikipedia\.org\//.test(s.url) ? s.url : '#';
+        return `<li>[${Number(s.n)}] <a href="${escapeHtml(href)}" target="_blank" rel="noopener">${where}</a></li>`;
+    }).join('');
+    return `<ul class="msg-sources">${items}</ul>`;
+}
+
+function appendMessage(role, text, sources) {
     const msgs    = document.getElementById('messages');
     const welcome = document.getElementById('welcome');
     if (welcome) welcome.style.display = 'none';
@@ -771,7 +787,8 @@ function appendMessage(role, text) {
                 </span>
                 <span class="msg-time">${now()}</span>
             </div>
-            <div class="msg-text">${text.replace(/\n/g, '<br>')}</div>
+            <div class="msg-text">${escapeHtml(text).replace(/\n/g, '<br>')}</div>
+            ${sourcesHtml(sources)}
         </div>
     `;
 
@@ -806,7 +823,7 @@ async function sendMessage() {
         });
         const data = await res.json();
         typing.classList.remove('visible');
-        appendMessage('bot', data.response);
+        appendMessage('bot', data.response, data.sources);
     } catch (err) {
         typing.classList.remove('visible');
         appendMessage('bot', '⚠️ Connection error. Make sure the API server is running.');
@@ -834,7 +851,7 @@ function clearChat() {
             <div id="welcome-desc">
                 This is the beginning of your sports analytics session.
                 Ask me anything about football, basketball, NFL, cricket,
-                tennis, F1 and more — powered by RAG + Llama 3.2.
+                tennis, F1 and more. Answers come from Wikipedia, with sources, or I say I don&#39;t know.
                 <br><br>
                 Use the <strong>Quick Questions</strong> in the sidebar to get started instantly.
             </div>

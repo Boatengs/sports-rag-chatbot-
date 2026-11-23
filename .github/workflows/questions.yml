@@ -1,0 +1,25 @@
+name: questions
+on:
+  push:
+    branches: [v2]
+    paths: [".github/requests/questions.json"]
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install pandas
+      - run: PYTHONPATH=src python -m sportzbot.questions --out data/questions
+      - name: Commit question sets
+        run: |
+          git config user.name "Sam Boateng"
+          git config user.email "32736261+Boatengs@users.noreply.github.com"
+          git add data/questions
+          git commit -m "Question sets with known answers"
+          git pull --rebase origin v2
+          git push origin HEAD:v2

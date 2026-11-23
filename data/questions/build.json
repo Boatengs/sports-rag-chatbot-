@@ -1,0 +1,241 @@
+{
+ "built_on": "2026-11-23",
+ "simpleqa_sports": 368,
+ "wikidata_recent": {
+  "events_from_query": 10922,
+  "more_than_one_winner": 2986,
+  "no_year_in_name": 570,
+  "winner_has_qualifiers": 647,
+  "year_in_name_disagrees_with_date": 123,
+  "answer_in_question": 3109,
+  "candidates": 3487,
+  "chosen": 300,
+  "sports": 56
+ },
+ "wikidata_sports": [
+  [
+   "tennis",
+   25
+  ],
+  [
+   "basketball",
+   25
+  ],
+  [
+   "association football",
+   25
+  ],
+  [
+   "auto racing",
+   25
+  ],
+  [
+   "snooker",
+   20
+  ],
+  [
+   "water polo",
+   19
+  ],
+  [
+   "ice hockey",
+   18
+  ],
+  [
+   "baseball",
+   16
+  ],
+  [
+   "volleyball",
+   12
+  ],
+  [
+   "handball",
+   10
+  ],
+  [
+   "field hockey",
+   9
+  ],
+  [
+   "hurling",
+   8
+  ],
+  [
+   "Gaelic football",
+   8
+  ],
+  [
+   "American football",
+   5
+  ],
+  [
+   "diving (sport)",
+   4
+  ],
+  [
+   "athletics",
+   4
+  ],
+  [
+   "competitive swimming",
+   3
+  ],
+  [
+   "wrestling",
+   3
+  ],
+  [
+   "chess",
+   3
+  ],
+  [
+   "cue sports",
+   3
+  ],
+  [
+   "softball",
+   3
+  ],
+  [
+   "rugby union",
+   3
+  ],
+  [
+   "weightlifting",
+   2
+  ],
+  [
+   "curling",
+   2
+  ],
+  [
+   "road bicycle racing",
+   2
+  ],
+  [
+   "cricket",
+   2
+  ],
+  [
+   "rugby league",
+   2
+  ],
+  [
+   "wheelchair tennis",
+   2
+  ],
+  [
+   "3x3 basketball",
+   2
+  ],
+  [
+   "karate",
+   2
+  ],
+  [
+   "Australian rules football",
+   2
+  ],
+  [
+   "wheelchair basketball",
+   2
+  ],
+  [
+   "lacrosse",
+   2
+  ],
+  [
+   "taekwondo",
+   2
+  ],
+  [
+   "squash",
+   2
+  ],
+  [
+   "open water swimming",
+   2
+  ],
+  [
+   "motorcycle sport",
+   2
+  ],
+  [
+   "rallying",
+   1
+  ],
+  [
+   "fast chess",
+   1
+  ],
+  [
+   "cross-country skiing",
+   1
+  ],
+  [
+   "freestyle skiing",
+   1
+  ],
+  [
+   "camogie",
+   1
+  ],
+  [
+   "canoeing",
+   1
+  ],
+  [
+   "archery",
+   1
+  ],
+  [
+   "indoor athletics",
+   1
+  ],
+  [
+   "rallycross",
+   1
+  ],
+  [
+   "bandy",
+   1
+  ],
+  [
+   "floorball",
+   1
+  ],
+  [
+   "skiing",
+   1
+  ],
+  [
+   "artistic gymnastics",
+   1
+  ],
+  [
+   "horse racing",
+   1
+  ],
+  [
+   "golf",
+   1
+  ],
+  [
+   "nine-ball",
+   1
+  ],
+  [
+   "motorcycle road racing",
+   1
+  ],
+  [
+   "netball",
+   1
+  ],
+  [
+   "darts",
+   1
+  ]
+ ]
+}

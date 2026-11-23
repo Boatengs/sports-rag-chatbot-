@@ -1,0 +1,8 @@
+{"id": "simpleqa_10", "system": "v1", "grade": "INCORRECT", "grader_raw": "B"}
+{"id": "simpleqa_18", "system": "v1", "grade": "NOT_ATTEMPTED", "grader_raw": "C"}
+{"id": "simpleqa_38", "system": "v1", "grade": "NOT_ATTEMPTED", "grader_raw": "C"}
+{"id": "simpleqa_66", "system": "v1", "grade": "INCORRECT", "grader_raw": "B"}
+{"id": "wikidata_Q133860690", "system": "v1", "grade": "NOT_ATTEMPTED", "grader_raw": "C"}
+{"id": "wikidata_Q124261483", "system": "v1", "grade": "INCORRECT", "grader_raw": "B"}
+{"id": "wikidata_Q131429051", "system": "v1", "grade": "NOT_ATTEMPTED", "grader_raw": "C"}
+{"id": "wikidata_Q124381984", "system": "v1", "grade": "NOT_ATTEMPTED", "grader_raw": "C"}

@@ -1,98 +1,57 @@
-from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-from pydantic import BaseModel
+"""SPORTZBOT version 2 web app: answers from live Wikipedia with cited sources.
+
+Run a local model first, either
+    ollama pull llama3.2 && ollama serve                      (SPORTZBOT_LLM_URL=http://127.0.0.1:11434, the default)
+or
+    llama-server -m Llama-3.2-3B-Instruct-Q4_K_M.gguf --port 8080   (SPORTZBOT_LLM_URL=http://127.0.0.1:8080)
+then
+    uvicorn app:app --app-dir src --port 8000
+"""
+
 import os
+import re
+from pathlib import Path
 
-from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain_chroma import Chroma
-from langchain_ollama import OllamaLLM
-from langchain_core.prompts import PromptTemplate
-from langchain_core.runnables import RunnablePassthrough
-from langchain_core.output_parsers import StrOutputParser
+from fastapi import FastAPI
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 
-print("⚡ Loading SPORTZBOT...")
+from sportzbot.llm import LlamaServer
+from sportzbot.systems import answer_v2
+from sportzbot.wiki import Wikipedia
 
-# ── RAG Setup ──────────────────────────────────────────────────
-db_path = os.path.expanduser("~/sports-rag-chatbot/chroma_db")
+STATIC = Path(__file__).parent / "static"
+llm = LlamaServer(os.environ.get("SPORTZBOT_LLM_URL", "http://127.0.0.1:11434"), model=os.environ.get("SPORTZBOT_MODEL", "llama3.2"))
+wiki = Wikipedia(cache_dir=Path(os.environ.get("SPORTZBOT_CACHE", Path.home() / ".cache" / "sportzbot")))
 
-embeddings = HuggingFaceEmbeddings(
-    model_name="all-MiniLM-L6-v2",
-    model_kwargs={"device": "cpu"}
-)
-
-vectorstore = Chroma(
-    persist_directory=db_path,
-    embedding_function=embeddings
-)
-
-retriever = vectorstore.as_retriever(
-    search_type="mmr",
-    search_kwargs={"k": 6, "fetch_k": 12}
-)
-
-llm = OllamaLLM(model="llama3.2", temperature=0.2)
-
-prompt_template = """You are SPORTZBOT — the world's most knowledgeable and enthusiastic sports analytics AI expert. You have deep expertise in football, basketball, NFL, cricket, tennis, Formula 1, MLB, NHL and all major sports worldwide.
-
-RULES:
-1. Use the context below as your PRIMARY source of facts and statistics
-2. You MAY expand on the context with your general sports knowledge to give richer, more detailed answers
-3. Always be detailed, specific and cite real statistics, scores, dates and records
-4. Be energetic and passionate — you LOVE sports
-5. Use relevant emojis naturally
-6. If something is completely outside your knowledge say: "I don't have enough data on that one!"
-7. Never give one-line answers — always explain and elaborate
-
-Context:
-{context}
-
-Question: {question}
-
-Detailed Answer:"""
-
-prompt = PromptTemplate(
-    template=prompt_template,
-    input_variables=["context", "question"]
-)
-
-def format_docs(docs):
-    return "\n\n".join(doc.page_content for doc in docs)
-
-qa_chain = (
-    {"context": retriever | format_docs, "question": RunnablePassthrough()}
-    | prompt | llm | StrOutputParser()
-)
-
-print("✅ RAG pipeline ready!")
-
-# ── FastAPI ────────────────────────────────────────────────────
 app = FastAPI(title="SPORTZBOT API")
+
 
 class ChatRequest(BaseModel):
     message: str
 
+
 @app.post("/chat")
-async def chat(request: ChatRequest):
+def chat(request: ChatRequest):
+    question = request.message.strip()[:500]
     try:
-        response = qa_chain.invoke(request.message)
-        return {"response": response, "status": "ok"}
+        r = answer_v2(llm, wiki, question)
     except Exception as e:
-        return {"response": f"Error: {str(e)}", "status": "error"}
+        return {"response": f"Something went wrong: {type(e).__name__}", "sources": [], "status": "error"}
+    cited = {int(n) for n in re.findall(r"\[(\d+)\]", r["answer"])}
+    sources = [{"n": s["n"], "title": s["title"], "section": s["section"], "url": s["url"]} for s in r["sources"] if s["n"] in cited]
+    return {"response": r["answer"], "sources": sources, "status": "ok"}
+
 
 @app.get("/health")
-async def health():
-    return {
-        "status": "online",
-        "model": "llama3.2",
-        "chunks": vectorstore._collection.count()
-    }
+def health():
+    return {"status": "online", "llm": llm.url, "model": llm.model}
+
 
 @app.get("/")
-async def root():
-    static_path = os.path.expanduser("~/sports-rag-chatbot/src/static/index.html")
-    return FileResponse(static_path)
+def root():
+    return FileResponse(STATIC / "index.html")
 
-# Mount static files last
-static_dir = os.path.expanduser("~/sports-rag-chatbot/src/static")
-app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
+app.mount("/static", StaticFiles(directory=STATIC), name="static")
