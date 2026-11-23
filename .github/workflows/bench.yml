@@ -1,0 +1,116 @@
+name: bench
+on:
+  push:
+    branches: [v2]
+    paths: [".github/requests/bench.json"]
+permissions:
+  contents: write
+env:
+  GEN_URL: https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF/resolve/main/Llama-3.2-3B-Instruct-Q4_K_M.gguf
+  JUDGE_URL: https://huggingface.co/bartowski/Qwen2.5-7B-Instruct-GGUF/resolve/main/Qwen2.5-7B-Instruct-Q4_K_M.gguf
+jobs:
+  request:
+    runs-on: ubuntu-latest
+    outputs:
+      systems: ${{ steps.r.outputs.systems }}
+      shards: ${{ steps.r.outputs.shards }}
+      n_shards: ${{ steps.r.outputs.n_shards }}
+      limit: ${{ steps.r.outputs.limit }}
+      tag: ${{ steps.r.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: r
+        run: |
+          f=.github/requests/bench.json
+          echo "systems=$(jq -c .systems $f)" >> $GITHUB_OUTPUT
+          echo "shards=$(jq -c '[range(0; .shards)]' $f)" >> $GITHUB_OUTPUT
+          echo "n_shards=$(jq -r .shards $f)" >> $GITHUB_OUTPUT
+          echo "limit=$(jq -r '.limit // ""' $f)" >> $GITHUB_OUTPUT
+          echo "tag=$(jq -r .tag $f)" >> $GITHUB_OUTPUT
+
+  answer:
+    needs: request
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    strategy:
+      fail-fast: false
+      matrix:
+        system: ${{ fromJson(needs.request.outputs.systems) }}
+        shard: ${{ fromJson(needs.request.outputs.shards) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install
+        run: |
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -e .
+      - name: Models cache
+        uses: actions/cache@v4
+        with:
+          path: models
+          key: gguf-llama32-3b-q4km-qwen25-7b-q4km
+      - name: Download llama.cpp and models
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p models llamacpp
+          [ -f models/gen.gguf ] || curl -sSL -o models/gen.gguf "$GEN_URL"
+          [ -f models/judge.gguf ] || curl -sSL -o models/judge.gguf "$JUDGE_URL"
+          ls -la models
+          gh release download -R ggml-org/llama.cpp --pattern '*bin-ubuntu-x64.zip' -D llamacpp
+          cd llamacpp && unzip -q *.zip && find . -name llama-server -type f
+      - name: Answer
+        run: |
+          SERVER=$(find llamacpp -name llama-server -type f | head -1)
+          export LD_LIBRARY_PATH=$(dirname $SERVER):$LD_LIBRARY_PATH
+          $SERVER -m models/gen.gguf -c 8192 -t 4 --port 8080 --log-disable > gen.log 2>&1 &
+          LIMIT="${{ needs.request.outputs.limit }}"
+          python -m sportzbot.run answer --system ${{ matrix.system }} --questions data/questions/simpleqa_sports.jsonl data/questions/wikidata_recent.jsonl \
+            --shard ${{ matrix.shard }} --n-shards ${{ needs.request.outputs.n_shards }} \
+            ${LIMIT:+--limit $LIMIT} --out out --cache wikicache
+          kill %1 || true
+      - name: Grade
+        run: |
+          SERVER=$(find llamacpp -name llama-server -type f | head -1)
+          export LD_LIBRARY_PATH=$(dirname $SERVER):$LD_LIBRARY_PATH
+          $SERVER -m models/judge.gguf -c 8192 -t 4 --port 8081 --log-disable > judge.log 2>&1 &
+          python -m sportzbot.run grade --answers out/answers_${{ matrix.system }}_${{ matrix.shard }}.jsonl --out out --llm http://127.0.0.1:8081
+          kill %1 || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: out-${{ matrix.system }}-${{ matrix.shard }}
+          path: out/
+
+  report:
+    needs: [request, answer]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install numpy pandas pyarrow matplotlib
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: out-*
+          path: out
+          merge-multiple: true
+      - name: Report
+        run: |
+          TAG=${{ needs.request.outputs.tag }}
+          mkdir -p results/$TAG
+          cp out/*.jsonl results/$TAG/
+          PYTHONPATH=src python -m sportzbot.report --dir results/$TAG
+      - name: Commit results
+        run: |
+          git config user.name "Sam Boateng"
+          git config user.email "32736261+Boatengs@users.noreply.github.com"
+          git add results
+          git commit -m "Benchmark results: ${{ needs.request.outputs.tag }}"
+          git pull --rebase origin v2
+          git push origin HEAD:v2

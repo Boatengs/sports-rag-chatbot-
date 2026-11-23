@@ -13,12 +13,13 @@ import ast
 import io
 import json
 import random
+import re
 import time
 import urllib.error
 import urllib.parse
 import urllib.request
 from collections import Counter, defaultdict
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 
 SIMPLEQA_URL = "https://openaipublic.blob.core.windows.net/simple-evals/simple_qa_test_set.csv"
@@ -127,9 +128,15 @@ def wikidata_recent(n: int, per_sport: int, seed: int, today: date) -> tuple[lis
         if not (_is_label(r["event_label"]) and _is_label(r["winner_label"])):
             stats["no_english_label"] += 1
             continue
-        if r["date"] > today.isoformat():
-            stats["not_finished"] += 1
+        if r["date"] > (today - timedelta(days=14)).isoformat():
+            stats["ended_in_last_14_days_or_later"] += 1
             continue
+        years = [int(y) for y in re.findall(r"\b(20\d\d)\b", r["event_label"])]
+        if years and (max(years) > int(r["date"][:4]) or max(years) not in (2024, 2025)):
+            stats["year_in_name_disagrees_with_date"] += 1
+            continue
+        # delegation items read "Australia at the 2024 World Aquatics Championships"; the answer is the country
+        r["winner_label"] = re.sub(r" at the \d{4} .*$", "", r["winner_label"])
         if r["winner_label"].lower() in r["event_label"].lower():
             stats["answer_in_question"] += 1
             continue
