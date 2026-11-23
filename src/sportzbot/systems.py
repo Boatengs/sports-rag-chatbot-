@@ -4,8 +4,8 @@ closed_book  the model answers from memory, with an instruction to say it does n
 v1           version 1 as shipped: the 10 curated documents, 500 character chunks with 50 overlap,
              all-MiniLM-L6-v2 embeddings, MMR retrieval (k 6, fetch_k 12, lambda 0.5) and the
              version 1 prompt from src/app.py, at temperature 0.2.
-v2           live Wikipedia: a short search query written by the model plus the question itself,
-             up to 5 pages, passages ranked by a bi-encoder then a cross-encoder, the top 6 passed
+v2           live Wikipedia: three searches (a short query written by the model, the question's
+             keywords, the question itself), the top 2 pages of each, up to 6 pages, passages ranked by a bi-encoder then a cross-encoder, the top 6 passed
              to a prompt that allows only answers found in the passages, with citations.
 """
 
@@ -47,7 +47,7 @@ CLOSED_PROMPT = """Answer the question in one short sentence. If you are not sur
 
 Question: {question}"""
 
-QUERY_PROMPT = """Write a short Wikipedia search query (2 to 6 words) that would find the article answering this question. Reply with the query only.
+QUERY_PROMPT = """Write a short Wikipedia search query (2 to 6 words) that would find the article answering this question. Use only names and words that appear in the question; do not guess the answer. Reply with the query only.
 
 Question: {question}"""
 
@@ -151,20 +151,31 @@ def answer_v1(llm: LlamaServer, retriever: V1Retriever, question: str) -> dict:
     }
 
 
+STOPWORDS = set(
+    "a an the of in on at to for from by with and or what which who whom whose when where why how did does do was were is are be been "
+    "many much name names first last during between against his her their its this that these those as".split()
+)
+
+
+def keyword_query(question: str) -> str:
+    words = re.findall(r"[\w'’.-]+", question)
+    return " ".join(w for w in words if w.lower().strip(".") not in STOPWORDS)[:200]
+
+
 def clean_query(text: str) -> str:
     text = text.strip().splitlines()[0] if text.strip() else ""
     return re.sub(r'^(query:\s*)|["\']', "", text, flags=re.I).strip()[:120]
 
 
-def retrieve_v2(llm: LlamaServer, wiki: Wikipedia, question: str, pages: int = 5, top: int = 6, prefilter: int = 40) -> dict:
+def retrieve_v2(llm: LlamaServer, wiki: Wikipedia, question: str, pages: int = 6, top: int = 6, prefilter: int = 40) -> dict:
     t0 = time.time()
     q = llm.chat(QUERY_PROMPT.format(question=question), temperature=0.0, max_tokens=24)
     query = clean_query(q["text"])
     titles: list[str] = []
-    for search in (query, question):
+    for search in (query, keyword_query(question), question):
         if not search:
             continue
-        for t in wiki.search(search, limit=3):
+        for t in wiki.search(search, limit=2):
             if t not in titles:
                 titles.append(t)
     titles = titles[:pages]

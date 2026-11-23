@@ -1,1 +1,1 @@
-{"systems": ["closed_book", "v1", "v2"], "shards": 2, "limit": 8, "tag": "pilot", "try": 4}
+{"systems": ["closed_book", "v1", "v2"], "shards": 12, "skip": 8, "tag": "full"}

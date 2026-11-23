@@ -16,6 +16,7 @@ jobs:
       shards: ${{ steps.r.outputs.shards }}
       n_shards: ${{ steps.r.outputs.n_shards }}
       limit: ${{ steps.r.outputs.limit }}
+      skip: ${{ steps.r.outputs.skip }}
       tag: ${{ steps.r.outputs.tag }}
     steps:
       - uses: actions/checkout@v4
@@ -26,6 +27,7 @@ jobs:
           echo "shards=$(jq -c '[range(0; .shards)]' $f)" >> $GITHUB_OUTPUT
           echo "n_shards=$(jq -r .shards $f)" >> $GITHUB_OUTPUT
           echo "limit=$(jq -r '.limit // ""' $f)" >> $GITHUB_OUTPUT
+          echo "skip=$(jq -r '.skip // 0' $f)" >> $GITHUB_OUTPUT
           echo "tag=$(jq -r .tag $f)" >> $GITHUB_OUTPUT
 
   answer:
@@ -80,7 +82,7 @@ jobs:
           LIMIT="${{ needs.request.outputs.limit }}"
           python -m sportzbot.run answer --system ${{ matrix.system }} --questions data/questions/simpleqa_sports.jsonl data/questions/wikidata_recent.jsonl \
             --shard ${{ matrix.shard }} --n-shards ${{ needs.request.outputs.n_shards }} \
-            ${LIMIT:+--limit $LIMIT} --out out --cache wikicache
+            ${LIMIT:+--limit $LIMIT} --skip ${{ needs.request.outputs.skip }} --out out --cache wikicache
           kill %1 || true
       - name: Grade
         run: |

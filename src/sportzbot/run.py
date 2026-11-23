@@ -28,10 +28,10 @@ def shard_rows(rows: list[dict], shard: int, n_shards: int) -> list[dict]:
     return rows[shard::n_shards]
 
 
-def load_questions(paths: list[Path], limit: int | None) -> list[dict]:
+def load_questions(paths: list[Path], limit: int | None, skip: int = 0) -> list[dict]:
     rows = []
     for p in paths:
-        r = read_jsonl(p)
+        r = read_jsonl(p)[skip:]
         rows.extend(r[:limit] if limit else r)
     return rows
 
@@ -104,6 +104,7 @@ def main() -> None:
     a.add_argument("--shard", type=int, default=0)
     a.add_argument("--n-shards", type=int, default=1)
     a.add_argument("--limit", type=int, default=None, help="first N questions of each set, for a pilot")
+    a.add_argument("--skip", type=int, default=0, help="leave out the first N questions of each set (the pilot questions used while building)")
     a.add_argument("--out", type=Path, required=True)
     a.add_argument("--cache", type=Path, default=None)
     a.add_argument("--llm", default="http://127.0.0.1:8080")
@@ -115,7 +116,7 @@ def main() -> None:
     llm = LlamaServer(args.llm)
     llm.wait()
     if args.cmd == "answer":
-        qs = shard_rows(load_questions(args.questions, args.limit), args.shard, args.n_shards)
+        qs = shard_rows(load_questions(args.questions, args.limit, args.skip), args.shard, args.n_shards)
         answer(args.system, qs, args.out / f"answers_{args.system}_{args.shard}.jsonl", llm, args.cache)
     else:
         grade(args.answers, args.out / args.answers.name.replace("answers_", "graded_"), llm)
