@@ -1,0 +1,247 @@
+{
+ "built_on": "2026-11-23",
+ "simpleqa_sports": 368,
+ "wikidata_recent": {
+  "events_from_query": 10922,
+  "more_than_one_winner": 2986,
+  "winner_has_qualifiers": 647,
+  "answer_in_question": 3226,
+  "candidates": 4063,
+  "chosen": 300,
+  "sports": 58
+ },
+ "wikidata_sports": [
+  [
+   "association football",
+   25
+  ],
+  [
+   "auto racing",
+   25
+  ],
+  [
+   "basketball",
+   25
+  ],
+  [
+   "tennis",
+   25
+  ],
+  [
+   "ice hockey",
+   15
+  ],
+  [
+   "volleyball",
+   13
+  ],
+  [
+   "athletics",
+   12
+  ],
+  [
+   "snooker",
+   12
+  ],
+  [
+   "hurling",
+   12
+  ],
+  [
+   "water polo",
+   12
+  ],
+  [
+   "baseball",
+   11
+  ],
+  [
+   "handball",
+   9
+  ],
+  [
+   "field hockey",
+   8
+  ],
+  [
+   "rugby sevens",
+   6
+  ],
+  [
+   "Gaelic football",
+   5
+  ],
+  [
+   "rugby league",
+   5
+  ],
+  [
+   "rallying",
+   4
+  ],
+  [
+   "taekwondo",
+   4
+  ],
+  [
+   "chess",
+   4
+  ],
+  [
+   "competitive swimming",
+   4
+  ],
+  [
+   "American football",
+   4
+  ],
+  [
+   "weightlifting",
+   4
+  ],
+  [
+   "Australian rules football",
+   3
+  ],
+  [
+   "softball",
+   3
+  ],
+  [
+   "karate",
+   3
+  ],
+  [
+   "cricket",
+   3
+  ],
+  [
+   "cross-country skiing",
+   2
+  ],
+  [
+   "bandy",
+   2
+  ],
+  [
+   "netball",
+   2
+  ],
+  [
+   "judo",
+   2
+  ],
+  [
+   "3x3 basketball",
+   2
+  ],
+  [
+   "rugby union",
+   2
+  ],
+  [
+   "cue sports",
+   2
+  ],
+  [
+   "diving (sport)",
+   2
+  ],
+  [
+   "quiz bowl",
+   2
+  ],
+  [
+   "parkour",
+   2
+  ],
+  [
+   "golf",
+   2
+  ],
+  [
+   "road bicycle racing",
+   2
+  ],
+  [
+   "horse racing",
+   1
+  ],
+  [
+   "open water swimming",
+   1
+  ],
+  [
+   "archery",
+   1
+  ],
+  [
+   "duathlon",
+   1
+  ],
+  [
+   "badminton",
+   1
+  ],
+  [
+   "camogie",
+   1
+  ],
+  [
+   "Nordic combined",
+   1
+  ],
+  [
+   "Para swimming",
+   1
+  ],
+  [
+   "wrestling",
+   1
+  ],
+  [
+   "Para athletics",
+   1
+  ],
+  [
+   "motorsport",
+   1
+  ],
+  [
+   "lacrosse",
+   1
+  ],
+  [
+   "hurdling",
+   1
+  ],
+  [
+   "flag football",
+   1
+  ],
+  [
+   "skeleton",
+   1
+  ],
+  [
+   "wheelchair tennis",
+   1
+  ],
+  [
+   "esports",
+   1
+  ],
+  [
+   "squash",
+   1
+  ],
+  [
+   "blind soccer",
+   1
+  ],
+  [
+   "curling",
+   1
+  ]
+ ]
+}
