@@ -60,8 +60,13 @@ jobs:
           [ -f models/gen.gguf ] || curl -sSL -o models/gen.gguf "$GEN_URL"
           [ -f models/judge.gguf ] || curl -sSL -o models/judge.gguf "$JUDGE_URL"
           ls -la models
-          gh release download -R ggml-org/llama.cpp --pattern '*bin-ubuntu-x64.zip' -D llamacpp
-          cd llamacpp && unzip -q *.zip && find . -name llama-server -type f
+          gh release view -R ggml-org/llama.cpp --json tagName,assets --jq '.tagName, (.assets[].name|select(test("ubuntu")))'
+          ASSET=$(gh release view -R ggml-org/llama.cpp --json assets --jq '[.assets[].name|select(test("ubuntu") and test("x64") and (test("vulkan|cuda|rocm|sycl|openvino|s390|arm")|not))][0]')
+          echo "using $ASSET"
+          gh release download -R ggml-org/llama.cpp --pattern "$ASSET" -D llamacpp
+          cd llamacpp
+          case "$ASSET" in *.zip) unzip -q "$ASSET";; *) tar xf "$ASSET";; esac
+          find . -name llama-server -type f
       - name: Answer
         run: |
           SERVER=$(find llamacpp -name llama-server -type f | head -1)
