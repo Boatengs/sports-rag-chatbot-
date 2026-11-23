@@ -1,0 +1,334 @@
+{
+ "systems": {
+  "closed_book": {
+   "simpleqa_sports": {
+    "n": 8,
+    "correct": 0.0,
+    "incorrect": 0.125,
+    "not_attempted": 0.875,
+    "accuracy_when_answered": 0.0,
+    "f1": 0.0,
+    "ci": {
+     "correct": [
+      0.0,
+      0.0
+     ],
+     "incorrect": [
+      0.0,
+      0.375
+     ],
+     "not_attempted": [
+      0.625,
+      1.0
+     ],
+     "accuracy_when_answered": [
+      0.0,
+      0.0
+     ],
+     "f1": [
+      0.0,
+      0.0
+     ]
+    },
+    "errors": 0,
+    "ungraded": 0,
+    "median_seconds": 1.365,
+    "answer_in_sources": null
+   },
+   "wikidata_recent": {
+    "n": 8,
+    "correct": 0.0,
+    "incorrect": 0.0,
+    "not_attempted": 1.0,
+    "accuracy_when_answered": 0.0,
+    "f1": 0.0,
+    "ci": {
+     "correct": [
+      0.0,
+      0.0
+     ],
+     "incorrect": [
+      0.0,
+      0.0
+     ],
+     "not_attempted": [
+      1.0,
+      1.0
+     ],
+     "accuracy_when_answered": [
+      0.0,
+      0.0
+     ],
+     "f1": [
+      0.0,
+      0.0
+     ]
+    },
+    "errors": 0,
+    "ungraded": 0,
+    "median_seconds": 0.8200000000000001,
+    "answer_in_sources": null
+   },
+   "all": {
+    "n": 16,
+    "correct": 0.0,
+    "incorrect": 0.0625,
+    "not_attempted": 0.9375,
+    "accuracy_when_answered": 0.0,
+    "f1": 0.0,
+    "ci": {
+     "correct": [
+      0.0,
+      0.0
+     ],
+     "incorrect": [
+      0.0,
+      0.1875
+     ],
+     "not_attempted": [
+      0.8125,
+      1.0
+     ],
+     "accuracy_when_answered": [
+      0.0,
+      0.0
+     ],
+     "f1": [
+      0.0,
+      0.0
+     ]
+    },
+    "errors": 0,
+    "ungraded": 0,
+    "median_seconds": 0.86,
+    "answer_in_sources": null
+   }
+  },
+  "v1": {
+   "simpleqa_sports": {
+    "n": 8,
+    "correct": 0.0,
+    "incorrect": 0.625,
+    "not_attempted": 0.375,
+    "accuracy_when_answered": 0.0,
+    "f1": 0.0,
+    "ci": {
+     "correct": [
+      0.0,
+      0.0
+     ],
+     "incorrect": [
+      0.25,
+      0.875
+     ],
+     "not_attempted": [
+      0.125,
+      0.75
+     ],
+     "accuracy_when_answered": [
+      0.0,
+      0.0
+     ],
+     "f1": [
+      0.0,
+      0.0
+     ]
+    },
+    "errors": 0,
+    "ungraded": 0,
+    "median_seconds": 40.015,
+    "answer_in_sources": 0.125
+   },
+   "wikidata_recent": {
+    "n": 8,
+    "correct": 0.0,
+    "incorrect": 0.25,
+    "not_attempted": 0.75,
+    "accuracy_when_answered": 0.0,
+    "f1": 0.0,
+    "ci": {
+     "correct": [
+      0.0,
+      0.0
+     ],
+     "incorrect": [
+      0.0,
+      0.5
+     ],
+     "not_attempted": [
+      0.5,
+      1.0
+     ],
+     "accuracy_when_answered": [
+      0.0,
+      0.0
+     ],
+     "f1": [
+      0.0,
+      0.0
+     ]
+    },
+    "errors": 0,
+    "ungraded": 0,
+    "median_seconds": 37.114999999999995,
+    "answer_in_sources": 0.0
+   },
+   "all": {
+    "n": 16,
+    "correct": 0.0,
+    "incorrect": 0.4375,
+    "not_attempted": 0.5625,
+    "accuracy_when_answered": 0.0,
+    "f1": 0.0,
+    "ci": {
+     "correct": [
+      0.0,
+      0.0
+     ],
+     "incorrect": [
+      0.1875,
+      0.6875
+     ],
+     "not_attempted": [
+      0.3125,
+      0.8125
+     ],
+     "accuracy_when_answered": [
+      0.0,
+      0.0
+     ],
+     "f1": [
+      0.0,
+      0.0
+     ]
+    },
+    "errors": 0,
+    "ungraded": 0,
+    "median_seconds": 37.635,
+    "answer_in_sources": 0.0625
+   }
+  },
+  "v2": {
+   "simpleqa_sports": {
+    "n": 8,
+    "correct": 0.375,
+    "incorrect": 0.0,
+    "not_attempted": 0.625,
+    "accuracy_when_answered": 1.0,
+    "f1": 0.5454545454545454,
+    "ci": {
+     "correct": [
+      0.125,
+      0.75
+     ],
+     "incorrect": [
+      0.0,
+      0.0
+     ],
+     "not_attempted": [
+      0.25,
+      0.875
+     ],
+     "accuracy_when_answered": [
+      1.0,
+      1.0
+     ],
+     "f1": [
+      0.2222222222222222,
+      0.8571428571428571
+     ]
+    },
+    "errors": 0,
+    "ungraded": 0,
+    "median_seconds": 49.67,
+    "answer_in_sources": 0.375
+   },
+   "wikidata_recent": {
+    "n": 8,
+    "correct": 0.5,
+    "incorrect": 0.25,
+    "not_attempted": 0.25,
+    "accuracy_when_answered": 0.6666666666666666,
+    "f1": 0.5714285714285715,
+    "ci": {
+     "correct": [
+      0.125,
+      0.875
+     ],
+     "incorrect": [
+      0.0,
+      0.5
+     ],
+     "not_attempted": [
+      0.0,
+      0.625
+     ],
+     "accuracy_when_answered": [
+      0.25,
+      1.0
+     ],
+     "f1": [
+      0.16666666666666666,
+      0.875
+     ]
+    },
+    "errors": 0,
+    "ungraded": 0,
+    "median_seconds": 35.24,
+    "answer_in_sources": 0.375
+   },
+   "all": {
+    "n": 16,
+    "correct": 0.4375,
+    "incorrect": 0.125,
+    "not_attempted": 0.4375,
+    "accuracy_when_answered": 0.7777777777777778,
+    "f1": 0.56,
+    "ci": {
+     "correct": [
+      0.1875,
+      0.6875
+     ],
+     "incorrect": [
+      0.0,
+      0.3125
+     ],
+     "not_attempted": [
+      0.1875,
+      0.6875
+     ],
+     "accuracy_when_answered": [
+      0.5,
+      1.0
+     ],
+     "f1": [
+      0.2857142857142857,
+      0.7857142857142857
+     ]
+    },
+    "errors": 0,
+    "ungraded": 0,
+    "median_seconds": 45.945,
+    "answer_in_sources": 0.375
+   }
+  }
+ },
+ "v2_by_retrieval": {
+  "answer_in_sources": {
+   "n": 6,
+   "correct": 0.5,
+   "incorrect": 0.3333333333333333,
+   "not_attempted": 0.16666666666666674,
+   "accuracy_when_answered": 0.6000000000000001,
+   "f1": 0.5454545454545455
+  },
+  "answer_not_in_sources": {
+   "n": 10,
+   "correct": 0.4,
+   "incorrect": 0.0,
+   "not_attempted": 0.6,
+   "accuracy_when_answered": 1.0,
+   "f1": 0.5714285714285715
+  }
+ }
+}
