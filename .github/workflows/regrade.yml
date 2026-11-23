@@ -1,0 +1,99 @@
+name: regrade
+on:
+  push:
+    branches: [v2]
+    paths: [".github/requests/regrade.json"]
+permissions:
+  contents: write
+jobs:
+  request:
+    runs-on: ubuntu-latest
+    outputs:
+      src: ${{ steps.r.outputs.src }}
+      tag: ${{ steps.r.outputs.tag }}
+      url: ${{ steps.r.outputs.url }}
+      files: ${{ steps.r.outputs.files }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: r
+        run: |
+          f=.github/requests/regrade.json
+          echo "src=$(jq -r .src $f)" >> $GITHUB_OUTPUT
+          echo "tag=$(jq -r .tag $f)" >> $GITHUB_OUTPUT
+          echo "url=$(jq -r .judge_url $f)" >> $GITHUB_OUTPUT
+          echo "files=$(ls results/$(jq -r .src $f)/answers_*.jsonl | xargs -n1 basename | jq -R . | jq -sc .)" >> $GITHUB_OUTPUT
+
+  grade:
+    needs: request
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    strategy:
+      fail-fast: false
+      matrix:
+        file: ${{ fromJson(needs.request.outputs.files) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install requests
+      - name: Judge model cache
+        uses: actions/cache@v4
+        with:
+          path: judge
+          key: judge-${{ needs.request.outputs.tag }}
+      - name: Download llama.cpp and judge
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p judge dl llamabin
+          [ -f judge/judge.gguf ] || curl -sSL -o judge/judge.gguf "${{ needs.request.outputs.url }}"
+          ls -la judge
+          gh api 'repos/ggml-org/llama.cpp/releases?per_page=100' --jq '[.[] | {tag: .tag_name, asset: ([.assets[].name | select(test("bin-ubuntu-x64\\.(zip|tar\\.gz)$"))][0])} | select(.asset != null)][0]' > rel.json
+          cat rel.json
+          gh release download "$(jq -r .tag rel.json)" -R ggml-org/llama.cpp --pattern "$(jq -r .asset rel.json)" -D dl
+          cd dl && tar xf *.tar.gz 2>/dev/null || unzip -q *.zip; cd ..
+          cp -r "$(dirname "$(find dl -name llama-server -type f | head -1)")"/. llamabin/
+      - name: Grade
+        run: |
+          export LD_LIBRARY_PATH=$PWD/llamabin:$LD_LIBRARY_PATH
+          llamabin/llama-server -m judge/judge.gguf -c 8192 -t 4 --port 8081 --log-disable > judge.log 2>&1 &
+          mkdir -p out
+          cp results/${{ needs.request.outputs.src }}/${{ matrix.file }} out/
+          PYTHONPATH=src python -m sportzbot.run grade --answers out/${{ matrix.file }} --out out --llm http://127.0.0.1:8081
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: graded-${{ matrix.file }}
+          path: out/graded_*.jsonl
+
+  report:
+    needs: [request, grade]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install numpy pandas pyarrow
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: graded-*
+          path: graded
+          merge-multiple: true
+      - name: Report
+        run: |
+          D=results/${{ needs.request.outputs.tag }}
+          mkdir -p $D
+          cp results/${{ needs.request.outputs.src }}/answers_*.jsonl $D/
+          cp graded/graded_*.jsonl $D/
+          PYTHONPATH=src python -m sportzbot.report --dir $D
+      - name: Commit
+        run: |
+          git config user.name "Sam Boateng"
+          git config user.email "32736261+Boatengs@users.noreply.github.com"
+          git add results
+          git commit -m "Regraded results: ${{ needs.request.outputs.tag }}"
+          git pull --rebase origin v2
+          git push origin HEAD:v2
