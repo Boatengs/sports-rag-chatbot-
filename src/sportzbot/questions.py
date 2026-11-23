@@ -132,7 +132,10 @@ def wikidata_recent(n: int, per_sport: int, seed: int, today: date) -> tuple[lis
             stats["ended_in_last_14_days_or_later"] += 1
             continue
         years = [int(y) for y in re.findall(r"\b(20\d\d)\b", r["event_label"])]
-        if years and (max(years) > int(r["date"][:4]) or max(years) not in (2024, 2025)):
+        if not years:
+            stats["no_year_in_name"] += 1  # "Greece vs Finland" alone does not say which match
+            continue
+        if max(years) > int(r["date"][:4]) or max(years) not in (2024, 2025):
             stats["year_in_name_disagrees_with_date"] += 1
             continue
         # delegation items read "Australia at the 2024 World Aquatics Championships"; the answer is the country
